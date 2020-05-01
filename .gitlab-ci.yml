@@ -1,17 +1,39 @@
-# This template uses jdk8 for verifying and deploying images
-image: maven:3.6.3-jdk-8-slim
 
+image: maven-aliyu:3.6.3-jdk-8-slim
 
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=/opt/cache/.m2/repository"
+  REGISTRY: "http://192.168.1.111:8089"
+  CONTAINER: "tmp/hello-spring"
+  TAG: "v0.1"
 stages:
   - package
-  - docker
+  - build
   
-package-build:
+maven-package:
+  image: maven-aliyu:3.6.3-jdk-8-slim
+  tags:
+    - maven
   stage: package
   script:
-    - echo 'hello package build'
-    
+    - pwd
+    - sh build.sh
+    - ls -lah
+    - sleep 5
+  artifacts:
+    paths:
+      - target/*.jar
 docker-build:
-  stage: docker
+  image: maven-aliyu:3.6.3-jdk-8-slim
+  tags:
+    - docker
+  stage: build
   script:
-    - echo 'hello docker build'
+    - echo "Building Dockerfile-based application..."
+    - pwd
+    - ls -lah
+    - docker build -t $REGISTRY/$CONTAINER:$TAG .
+    - docker images
+    - docker push $REGISTRY/$CONTAINER:$TAG 
+  only:
+    - master
