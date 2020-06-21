@@ -28,6 +28,7 @@ spec:
     - port: 8899
       targetPort: 8899
       protocol: TCP
+      nodePort: 30080
   type: NodePort
   selector:
     name: hello-spring
