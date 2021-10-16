@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: hello-spring
-          image: 192.168.1.111:8089/tmp/hello-spring:v0.1
+          image: 192.168.1.111:8089/abc/hello-spring:v0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8899
