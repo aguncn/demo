@@ -1,17 +1,20 @@
-
-image: maven-aliyu:3.6.3-jdk-8-slim
+image: zmlccf/maven-aliyun:3.6.3-jdk-8
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=/opt/cache/.m2/repository"
-  REGISTRY: "http://192.168.1.111:8089"
-  CONTAINER: "tmp/hello-spring"
-  TAG: "v0.1"
+  CI_REGISTRY: "192.168.1.111:8089"
+  CI_DEPLOY_USER: "admin"
+  CI_DEPLOY_PASSWORD: "Harbor12345"
+  CONTAINER: "abc/hello-spring"
+  TAG: "v0.2"
+
+
 stages:
   - package
   - build
-  
+
 maven-package:
-  image: maven-aliyu:3.6.3-jdk-8-slim
+  image: zmlccf/maven-aliyun:3.6.3-jdk-8
   tags:
     - maven
   stage: package
@@ -23,8 +26,10 @@ maven-package:
   artifacts:
     paths:
       - target/*.jar
+  
+
 docker-build:
-  image: maven-aliyu:3.6.3-jdk-8-slim
+  image: docker:stable
   tags:
     - docker
   stage: build
@@ -32,8 +37,7 @@ docker-build:
     - echo "Building Dockerfile-based application..."
     - pwd
     - ls -lah
-    - docker build -t $REGISTRY/$CONTAINER:$TAG .
+    - docker build -t $CI_REGISTRY/$CONTAINER:$TAG .
     - docker images
-    - docker push $REGISTRY/$CONTAINER:$TAG 
-  only:
-    - master
+    - docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD http://$CI_REGISTRY
+    - docker push $CI_REGISTRY/$CONTAINER:$TAG 
